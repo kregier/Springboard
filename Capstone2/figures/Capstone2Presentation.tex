@@ -1,0 +1,367 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Beamer Presentation
+% LaTeX Template
+% Version 1.0 (10/11/12)
+%
+% This template has been downloaded from:
+% http://www.LaTeXTemplates.com
+%
+% License:
+% CC BY-NC-SA 3.0 (http://creativecommons.org/licenses/by-nc-sa/3.0/)
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%----------------------------------------------------------------------------------------
+%	PACKAGES AND THEMES
+%----------------------------------------------------------------------------------------
+
+\documentclass{beamer}
+
+\mode<presentation> {
+\usetheme{default} %
+\usecolortheme{seagull} 
+}
+
+\usepackage{graphicx} % Allows including images
+\usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
+\usepackage{tipa}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+
+\pgfdeclareimage[width=\paperwidth]{mybackground}{College.pdf}
+%----------------------------------------------------------------------------------------
+%	TITLE PAGE
+%----------------------------------------------------------------------------------------
+
+\setbeamertemplate{title page}{
+        \begin{picture}(0,0)
+            \put(-30,-143){%
+                \pgfuseimage{mybackground}
+            }
+            \put(-17,-40.7){%
+                \begin{minipage}[b][45mm][t]{226mm}
+                    \usebeamerfont{title}{\inserttitle\par}
+                \end{minipage}
+            }
+            \put (-17, -75){%
+            	\begin{minipage}[b][45mm][t]{226mm}
+			\usebeamerfont{Large}{\insertauthor\par}
+			\usebeamerfont{large}{\insertdate\par}
+		\end{minipage}
+	   }
+            \end{picture}
+    }
+
+\title[College Scorecard]{Predicting school closings from the DOE College Scorecard} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author{Kirsten Regier} % Your name
+\date{September 30, 2020} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+%\begin{frame}
+%\frametitle{Overview} % Table of contents slide, comment this block out to remove it
+%\tableofcontents
+%\end{frame}
+
+%----------------------------------------------------------------------------------------
+%	PRESENTATION SLIDES
+%----------------------------------------------------------------------------------------
+%------------------------------------------------
+\section{Background} % 1-2 slides
+%------------------------------------------------
+\begin{frame}
+\frametitle{Number of US Postsecondary Institutions}
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=4.5in]{NCESFastFactsPies2.png}
+\caption{Distribution of US colleges by degree type for AY 2012-13 (left) and 2016-2017 (right).  \newline
+\tiny{Source: U.S. Department of Education, National Center for Education Statistics. (2019). Digest of Education Statistics, 2018 (NCES 2020-009), Chapter 2., https://nces.ed.gov/fastfacts/display.asp?id=84}}
+\end{center}
+\end{figure}
+
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Closing of US postsecondary institutions}
+
+\begin{minipage}[0.5\textheight]{\textwidth}
+\begin{columns}[T]
+\begin{column}{0.65\textwidth}
+\includegraphics[width=2.75in]{600Library.pdf}
+\end{column}
+\begin{column}{0.35\textwidth}
+\vspace{.7in}
+postsecondary institutions closed between 2012-2013 and 2016-2017.
+\end{column}
+\end{columns}
+\end{minipage}
+
+\vspace{1.5em}
+
+\textbf{ITT Technical Institute} closed 130+ campuses in 2016, affecting more than 40,000 students and 8,000 faculty \newline \tiny{https://www.insidehighered.com/news/2016/09/07/itt-tech-shuts-down-all-campuses}
+\vspace{1.5em}
+
+\normalsize \textbf{Cincinnati Christian University} stopped "offering accredited degree programs" in Fall 2019  \tiny{https://ccuniversity.edu/a-letter-to-our-students/}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Can we predict which schools are likely to close?}
+
+Why does it matter?
+\begin{itemize}
+\item Trends predict fewer college-going high-school graduates
+\item Rising tuition and student loan debt
+\item Financial strain from COVID-19
+\end{itemize}
+
+\vspace{1em}
+
+Potential stakeholders:
+\begin{itemize}
+\item Prospective students (and parents)
+\item Faculty, staff, and support services
+\item College administrators, boards of trustees, and advisors
+\item Accrediting agencies, funding agencies and donors
+\item Employers looking to hire graduates
+\end{itemize}
+\end{frame}
+
+\section{The Data} % 1 slide
+
+\begin{frame}
+\frametitle{The Data}
+US Department of Education College Scorecard \tiny{(https://collegescorecard.ed.gov/data/)}
+\normalsize
+\begin{itemize}
+\item \textbf{Target variable} - currently operating (CURROPER)
+\item 10,200 observations  x 32 features
+\begin{itemize}
+\item 7441 schools operating in 2013
+\item 2759 closed schools from 2010-2013
+\end{itemize}
+
+\item School identifiers - OPEID, name, location
+\item Institutional features - governance, predominant degree, highest degree, 
+\item Student features - enrollment, completion rates, median debt,
+\item Financial info - cost, tuition revenue, institutional expenditure, average faculty monthly salary
+\end{itemize}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{Features of analyzed schools}
+\begin{center}
+
+\begin{figure}
+\includegraphics[width=4.25in]{currentGovDegCOPStackBar.png}
+\end{figure}
+
+Distribution of schools in the data by governance (left), predominant degree (right), and whether they are currently operating (CURROPER).
+\end{center}
+
+\end{frame}
+
+\begin{frame} 
+\frametitle{Features of analyzed schools}
+\begin{columns}
+
+\column{2in}
+\begin{center}
+Enrollment
+\end{center}
+\begin{figure}
+\includegraphics[width=2in]{currentUGDSControlBox.png}
+\end{figure}
+
+\column{2in}
+\begin{center}
+Price
+\end{center}
+\begin{figure}
+\includegraphics[width=2in]{currentPriceControlBox.png}
+\end{figure}
+
+\end{columns}
+\begin{center}
+Enrollment (left) and cost (right) of schools by governance structure and whether they are currently operating (CURROPER).  In general, public schools are larger and less expensive than private schools. Private non-profit schools are slightly larger and more expensive than private for-profit schools, though private for-profit schools show more variation in enrollment and cost than private nonprofit schools.
+\end{center}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+%------------------------------------------------
+\section{Recommendations and Key Findings} % 1 slide
+%------------------------------------------------
+\begin{frame}
+\frametitle{Recommendation}
+\begin{block}{Primary recommendation}
+Increase weekday and weekend rates to \$86.
+\begin{itemize}
+\item \$1.75 million in additional revenue assuming 350,000 customers
+\end{itemize}
+\end{block}
+\begin{block}{Alternative proposal}
+Increase weekend rates to \$87; leave weekday rates at \$81
+\begin{itemize}
+\item 250,000 weekend customers - \$1.5 million
+\item 300,000 weekend customers - \$1.8 million
+\end{itemize}
+\end{block}
+\end{frame}
+
+%------------------------------------------------
+\section{Modeling Results and Analysis } % 3-4 slides
+%------------------------------------------------
+\begin{frame}
+\frametitle{Data Processing}
+\textbf{Missing} data - 13 of 27 columns contained missing data
+\begin{itemize}
+\item Filled with 0 if 'None' was a likely response
+\item Filled with column mean elsewhere
+\end{itemize}
+\textbf{Outliers} were analyzed and maintained
+\begin{itemize}
+\item Half of the resorts had at least one outlying value
+\item One 'yearsOpen' value changed from 2019 to 1
+\end{itemize}
+\textbf{Dropped} Region column - duplicates state information
+
+\textbf{K-means analysis} - 3 clusters
+\end{frame}
+%------------------------------------------------
+\begin{frame}
+\frametitle{Modeling}
+Separate models for \textbf{weekday} and \textbf{weekend} prices
+
+Linear regression model
+
+\begin{block} {Model Performance Measures}
+\begin{table}[h]
+\begin{center}
+\begin{tabular} {c | c | c | c | c | l }
+& \multicolumn{2}{c}{Weekday} & \multicolumn{2}{c}{Weekend} & Features\\
+Model& EVS & MAE & EVS & MAE & dropped\\ \hline
+1 & 0.9353 & 5.2027 & 0.9413 & 4.8545 & \\ \hline
+2 & 0.9171 & 5.5386 & 0.9340 & 5.1694 & state \\ \hline
+3 & 0.9185 & 5.5315 & 0.9362 & 5.1068 & state \\
+& & & & &  summit\_elev \\ \hline
+\end{tabular}
+%\caption{Model performance measures}
+\label{tab:perform}
+\end{center}
+\end{table}
+\end{block}
+\end{frame}
+
+\begin{frame}
+\frametitle{Model 3 Results}
+
+\begin{table}
+\begin{tabular}{c | c | c }
+& Weekday & Weekend \\ \hline
+Prediction & \$76.41 & \$87.57 \\ \hline
+Actual & \$81 & \$81 \\ \hline
+\end{tabular}
+\label{tab:prices}
+\caption{Actual and predicted ticket prices}
+\end{table}
+
+\begin{table}
+\begin{tabular}{c | c | c | c | c}
+& \multicolumn{2}{c}{Weekday} & \multicolumn{2}{c}{Weekend} \\
+& Factor & Coefficient & Factor & Coefficient \\ \hline
+1 & AdultWeekend  & 20.900254 & AdultWeekday & 20.049070 \\ \hline
+2 & clusters & 2.297560 & clusters & 2.622573  \\ \hline
+3 & Snow Making\_ac &1.742646  & vertical\_drop  & 2.011784\\ \hline
+4 & averageSnowfall & 1.262723 & triple & 1.380078\\ \hline
+5 &Runs & 1.210851 & daysOpenLastYear & 1.241385 \\ \hline
+\end{tabular}
+\label{tab:features}
+\caption{Top 5 predictive features and coefficients}
+\end{table}
+
+\end{frame}
+
+%------------------------------------------------
+\begin{frame} 
+\frametitle{Weekend price by Resort size (acres of skiable terrain)}
+\begin{columns}
+
+\column{2in}
+\begin{center}
+All US Resorts
+\end{center}
+\begin{figure}
+%\includegraphics[width=2in]{TerrainxWeekend.png}
+\end{figure}
+
+\column{2in}
+\begin{center}
+Montana Resorts
+\end{center}
+\begin{figure}
+%\includegraphics[width=2in]{MontanaTerrainxWeekend.png}
+\end{figure}
+
+\end{columns}
+\begin{center}
+Current \textbf{weekend} ticket price by acres of skiable terrain for all US ski resorts (left) and for ski resorts in Montana (right). The larger black dot represents Big Mountain Resort.
+\end{center}
+
+\end{frame}
+%-----------------------------------------------
+\begin{frame} 
+\frametitle{Weekend price by Resort size (number of runs)}
+\begin{columns}
+
+\column{2in}
+\begin{center}
+All US Resorts
+\end{center}
+\begin{figure}
+%\includegraphics[width=2in]{RunsxWeekend.png}
+\end{figure}
+
+\column{2in}
+\begin{center}
+Montana Resorts
+\end{center}
+\begin{figure}
+%\includegraphics[width=2in]{MontanaRunsxWeekend.png}
+\end{figure}
+
+\end{columns}
+\begin{center}
+Current \textbf{weekend} ticket price by number of runs for all US ski resorts (left) and for ski resorts in Montana (right). The larger black dot represents Big Mountain Resort.
+\end{center}
+\end{frame}
+%-----------------------------------------------
+\section{Summary \& Conclusions} % 1 slide
+%------------------------------------------------
+\subsection{Conclusions}
+\begin{frame}{Conclusions}
+\begin{itemize}
+
+\item In Montana -  current Big Mountain price is highest; second largest resort with many runs\\
+\item Nationally - current weekend prices are below model predictions.\\
+\item Raising weekend ticket prices to \$86-\$87 would bring in sufficient additional revenue to cover the operating cost of the new chairlift.\\
+
+\end{itemize}
+\end{frame}
+%------------------------------------------------
+\end{document} 
