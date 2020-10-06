@@ -13,6 +13,8 @@
 
 \section{Decision Tree Model}
 \subsection{Hyperparameters}
+The hyperparameters for depth and node purity method were determined by a grid search, as shown in Figure \ref{fig:DTHyper}. The optimal depth is 23 and node purity method is entropy.
+
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=3in]{DTHyperparameters.png}
@@ -22,11 +24,11 @@
 \end{figure}
 
 \subsection{Model parameters}
-\noindent \textbf{DecisionTreeClassifier}(ccp\textunderscore alpha=0.0, class\textunderscore weight=None, criterion='entropy', max\textunderscore depth=24, \newline max\textunderscore features=None, max\textunderscore leaf\textunderscore nodes=None, min\textunderscore impurity\textunderscore decrease=0.0, min\textunderscore impurity\textunderscore split=None, min\textunderscore samples\textunderscore leaf=1, min\textunderscore samples\textunderscore split=2, min\textunderscore weight\textunderscore fraction\textunderscore leaf=0.0, presort='deprecated', random\textunderscore state=21, splitter='best')
+\noindent \textbf{DecisionTreeClassifier}(ccp\textunderscore alpha=0.0, class\textunderscore weight=None, criterion='entropy', max\textunderscore depth=23, \newline max\textunderscore features=None, max\textunderscore leaf\textunderscore nodes=None, min\textunderscore impurity\textunderscore decrease=0.0, min\textunderscore impurity\textunderscore split=None, min\textunderscore samples\textunderscore leaf=1, min\textunderscore samples\textunderscore split=2, min\textunderscore weight\textunderscore fraction\textunderscore leaf=0.0, presort='deprecated', random\textunderscore state=21, splitter='best')
 
 \begin{figure}[h]
 \begin{center}
-\includegraphics[width=3in]{DTFeatureImportance.png}
+\includegraphics[width=2.5in]{DTFeatureImportance.png}
 \caption{Feature importance levels based on the Decision Tree model.} 
 \label{fig:DTFeatures}
 \end{center}
@@ -41,19 +43,20 @@
 \multicolumn{2}{l}{Currently operating} & \multicolumn{2}{c}{Predicted} & Recall \\
 & & No & Yes &  \\ 
 \cline{2-5}
-Actual & No & 1525 &  131 & 0.92 \\
-& Yes & 302 &1930 & .86 \\  \hline
-Precision&  & .83 & .94 \\ 
-Accuracy & & &  & .889 \\
+Actual & No & 1618 &  38 & 0.98 \\
+& Yes & 124 & 2108 & 0.94 \\  \hline
+Precision&  & 0.93 & 0.98 \\ 
+Accuracy & & &  & 0.96 \\
 \end{tabular}
 \label{tab:DTConfusion}
 \end{center}
 \end{table} 
 
-
 \section{AdaBoost Model}
 
 \subsection{Hyperparameters}
+The hyperparameter for number of estimators was determined by a grid search using the previous Decision Tree model as a base (orange) and without providing a base model (blue), as shown in Figure \ref{fig:ABHyper}. The optimal number of estimators is 128.
+
 \begin{figure}[h]
 \begin{center}
 \includegraphics[width=3in]{ABHyperparameters.png}
@@ -67,7 +70,7 @@ Accuracy & & &  & .889 \\
                    base\textunderscore estimator=DecisionTreeClassifier(ccp\textunderscore alpha=0.0,
                                                          class\textunderscore weight=None,
                                                          criterion='entropy',
-                                                         max\textunderscore depth=24,
+                                                         max\textunderscore depth=23,
                                                          max\textunderscore features=None,
                                                          max\textunderscore leaf\textunderscore nodes=None,
                                                          min\textunderscore impurity\textunderscore decrease=0.0,
@@ -78,34 +81,62 @@ Accuracy & & &  & .889 \\
                                                          presort='deprecated',
                                                          random\textunderscore state=21,
                                                          splitter='best'),
-                   learning\textunderscore rate=1.0, n\textunderscore estimators=114, random\textunderscore state=21)
+                   learning\textunderscore rate=1.0, n\textunderscore estimators=128, random\textunderscore state=21)
 
 \begin{figure}[h]
 \begin{center}
-%\includegraphics[width=3in]{DTFeatureImportance.png}
 \includegraphics[width=3in]{ABFeatureImportance.png}
-
 \caption{Feature importance levels based on the AdaBoost model.} 
 \label{fig:Features}
 \end{center}
 \end{figure}
 
+\newpage
 \subsection{Model evaluation}
 
-\begin{table}[h]
-\begin{center}
-	\caption{AdaBoost Model - Confusion matrix and Evaluation metrics}
+\begin{table}[h!]
+ 	\caption{AdaBoost model - Confusion matrices and Evaluation metrics} 
+ 	\begin{minipage}{.5\linewidth}
+		\caption{Resampled data}
+		\centering
 		\begin{tabular}{l l | c c r }
 \multicolumn{2}{l}{Currently operating} & \multicolumn{2}{c}{Predicted} & Recall \\
 & & No & Yes &  \\ 
 \cline{2-5}
-Actual & No & 1536 &  120 & 0.93 \\
-& Yes & 171 & 2061 & .92 \\  \hline
-Precision&  & .90 & .94 \\ 
-Accuracy & & &  & .93 \\
+Actual & No & 1620 &  36 & 0.98 \\
+& Yes & 69 & 2163 & 0.97 \\  \hline
+Precision&  & 0.96 & 0.98 \\ 
+Accuracy & & &  & 0.97 \\
 	\end{tabular}
-	\label{tab:ABConfusion}
-	\end{center}
-	\end{table}
+	\label{tab:ABConfusionResamp}
+	\end{minipage}%
+	\begin{minipage}{.5\linewidth}
+	\caption{Without duplicate data}
+	\centering
+		\begin{tabular}{l l | c c r }
+\multicolumn{2}{l}{Currently operating} & \multicolumn{2}{c}{Predicted} & Recall \\
+& & No & Yes &  \\ 
+\cline{2-5}
+Actual & No & 1227 &  30 & 0.98 \\
+& Yes & 69 & 2163 & .97 \\  \hline
+Precision&  & .95 & .99 \\ 
+Accuracy & & &  & .97 \\
+	\end{tabular}
+	\label{tab:ABConfusionNoDup}	
+	\end{minipage}
+\end{table} 
+
+\subsection{Threshold calculation}
+
+Various thresholds for assigning schools to currently operating or not were tried for both the final Decision Tree model and the final AdaBoost model, as shown in Figure \ref{fig:Thresholds}. Initial models on the unbalanced dataset showed that adjusting the threshold could improve model performance. However, after resampling the minority class to balance the data, and the using the AdaBoost model which focusses on misclassified data, improved the model performance to the point where the 50\% threshold produced the best scores for both accuracy and balanced accuracy.
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=3in]{DTThreshold.png}
+\includegraphics[width=3in]{ABThreshold.png}
+\caption{Accuracy and balanced accuracy scores at various decision thresholds for the Decision Tree model (left) and AdaBoost model (right).} 
+\label{fig:Thresholds}
+\end{center}
+\end{figure}
 
 \end{document}
