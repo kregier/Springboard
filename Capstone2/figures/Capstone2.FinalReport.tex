@@ -22,7 +22,7 @@ Colleges and universities could use information about common features of schools
 \subsection{The Data}
 The data was gathered from the US Department of Education's College Scorecard, which is available from https://collegescorecard.ed.gov/data/. The database contains information about schools participate in the Title IV program and accept or distribute federal financial aid to students. Annual data is available from 1996 to 2013; the current analysis focusses on data from 2010 and beyond.
 
-The database includes information about the institution, its finances, federal financial aid and student debt, completion and retention rates, and student demographics. A subset of 15 features were selected for analysis, and narrowed further based on missing data and preliminary modeling. The target variable was a boolean variable that indicates whether the school is currently operating.
+The database includes information about the institution, its finances, federal financial aid and student debt, completion and retention rates, and student demographics. A subset of 12 features was selected for the final analysis. The target variable was a boolean variable that indicates whether the school is currently operating.
 
 \subsection{EDA}
 \subsubsection{Governance structure and Predominant degree offered}
@@ -109,7 +109,7 @@ The resampling method that yielded the best balance of overall accuracy and prec
 The final model included two supervised ML models in series - an initial Decision Tree model that formed the basis for an AdaBoost model. 
 
  \subsubsection{Decision Tree}
-A grid search was performed to find the optimal hyperparameters (tree depth and node purity method) for the initial decision tree model. The optimal depth was set to 23 and the node purity method was 'entropy'. With the  threshold at 50\% for assigning boolean predictions to the target variable (Currently operating), the overall accuracy for the initial Decision Tree model was 96\%, with precision of 93\% and recall of 98\% for the 'Not currently operating' class, as shown in Table \ref{tab:DTConfusion}.
+A grid search was performed to find the optimal hyperparameters (tree depth and node purity method) for the initial decision tree model. The optimal depth was set to 22 and the node purity method was 'gini'. With the  threshold at 50\% for assigning boolean predictions to the target variable (Currently operating), the overall accuracy for the initial Decision Tree model was 87\%, with precision of 80\% and recall of 93\% for the 'Not currently operating' class, as shown in Table \ref{tab:DTConfusion}.
    
 \begin{table}[h]
  	\caption{Confusion matrices and Evaluation metrics} 
@@ -120,10 +120,10 @@ A grid search was performed to find the optimal hyperparameters (tree depth and 
 \multicolumn{2}{l}{Currently operating} & \multicolumn{2}{c}{Predicted} & Recall \\
 & & No & Yes &  \\ 
 \cline{2-5}
-Actual & No & 1618 &  38 & 0.98 \\
-& Yes & 124 & 2108 & 0.94 \\  \hline
-Precision&  & 0.93 & 0.98 \\ 
-Accuracy & & &  & 0.96 \\
+Actual & No & 1533 &  123 & 0.93 \\
+& Yes & 380 & 1852 & 0.83 \\  \hline
+Precision&  & 0.80 & 0.94 \\ 
+Accuracy & & &  & 0.87 \\
 	\end{tabular}
 	\label{tab:DTConfusion}
 	\end{minipage}%
@@ -134,22 +134,27 @@ Accuracy & & &  & 0.96 \\
 \multicolumn{2}{l}{Currently operating} & \multicolumn{2}{c}{Predicted} & Recall \\
 & & No & Yes &  \\ 
 \cline{2-5}
-Actual & No & 1620 &  36 & 0.98 \\
-& Yes & 69 & 2163 & 0.97 \\  \hline
-Precision&  & 0.96 & 0.98 \\ 
-Accuracy & & &  & 0.97 \\
+Actual & No & 1538 &  118 & 0.93 \\
+& Yes & 195 & 2037 & 0.91 \\  \hline
+Precision&  & 0.89 & 0.95 \\ 
+Accuracy & & &  & 0.92 \\
 	\end{tabular}
 	\label{tab:ABConfusion}
 	\end{minipage}
 \end{table} 
 
 \subsubsection{AdaBoost Model}
-After the initial Decision Tree model was trained, it formed the base for an AdaBoost model. Again, the hyperparameter of the AdaBoost model (n-estimators) was chosen empirically. The AdaBoost algorithm improves model performance by focussing on mis-classified samples and adjusting the model weights to improve their classification. The final AdaBoost model had an overall accuracy of 97\% with a precision of 96\% and recall of 98\% for the 'Not currently operating' class, as shown in Table \ref{tab:ABConfusion}.
+After the initial Decision Tree model was trained, it formed the base for an AdaBoost model. Again, the hyperparameter of the AdaBoost model (n-estimators = 122) was chosen empirically. The AdaBoost algorithm improves model performance by focussing on mis-classified samples and adjusting the model weights to improve their classification. The final AdaBoost model had an overall accuracy of 92\% with a precision of 89\% and recall of 93\% for the 'Not currently operating' class, as shown in Table \ref{tab:ABConfusion}.
 
 \section{Findings}
-The weights of different features for the each of the models are given in Figure \ref{fig:Features}. The initial Decision Tree model results (left) suggest that the most important feature in predicting whether a school is currently operating is the percent of students who complete their degree within 4 years at the original institution (COMP\_ORIG\_YR4\_RT), followed by the percent of students still enrolled at the original institution after 4 years (ENRL\_ORIG\_YR4\_RT). The next three features are undergraduate enrollment (UGDS), governance structure (CONTROL) and the percent of students who withdrew within 4 years from the original institutions (WDRAW\_ORIG\_YR4\_RT). Further exploration of these features shows that the values for the percent of students completed, still enrolled and withdrawn from the original institution within 4 years were originally missing for the year 2013 and were imputed using data from previous year. This results in most of the open schools with the same governance and predominant degree having identical, imputed values for these variables, which could be why these values are ranked so highly in these models, even though they may not actually be informative. While the other features have weights greater than zero, which suggests that they do have predictive power in the model, there are no clear division between features with lesser or greater importance.
+\subsection{Feature weights}
+The weights of different features for the each of the models are given in Figure \ref{fig:Features}. The initial Decision Tree model results (left) suggest that the most important feature in predicting whether a school is currently operating is undergraduate enrollment (UGDS), suggesting that the more students a school has, the more likely it is to be operating. The next two features are the governance structure (CONTROL) and the percentage of students over age 25 (UG25abv). The percentage of students over age 25 is a continuous, numerical variable, which means that schools with higher percentages of older students are more likely to be operating. The governance structure (CONTROL) is a categorical variable. In this case, the model suggests that private for-profit schools have a highest probability of being open, followed by private nonprofit schools, with public schools having the lowest probability of being open.
 
-The most important feature in the AdaBoost model was undergraduate enrollment (UGDS), which suggests that schools with higher enrollments are more likely to be currently operating. The other top features include instructional expenditure (INEXPFTE), the percent of students who complete their degree within 4 years at the original institution (COMP\_ORIG\_YR4\_RT), and the median amount of student debt (DEBT\_MDN). The weights of two features in the AdaBoost model were null, suggesting that they don't play an important role in predicting whether schools are operating -  the percent of students who withdrew within 4 years from the original institutions (WDRAW\_ORIG\_YR4\_RT) and the percent of student over age 25 (UG25abv).
+The least important features are the predominant degree (PREDDEG) and the percent of faculty who are employed full time (PFTFAC). While the other features have weights greater than zero, which suggests that they do have predictive power in the model, there are not clear divisions between features with lesser or greater importance.
+
+%the percent of students who complete their degree within 4 years at the original institution (COMP\_ORIG\_YR4\_RT), followed by the percent of students still enrolled at the original institution after 4 years (ENRL\_ORIG\_YR4\_RT). The next three features are undergraduate enrollment (UGDS), governance structure (CONTROL) and the percent of students who withdrew within 4 years from the original institutions (WDRAW\_ORIG\_YR4\_RT). Further exploration of these features shows that the values for the percent of students completed, still enrolled and withdrawn from the original institution within 4 years were originally missing for the year 2013 and were imputed using data from previous year. This results in most of the open schools with the same governance and predominant degree having identical, imputed values for these variables, which could be why these values are ranked so highly in these models, even though they may not actually be informative. 
+
+The only feature that was important in the AdaBoost model was governance structure (CONTROL).
 
 %The weights of most of the features in the AdaBoost model were null. The only two features that had weights are governance (CONTROL) and completion rate (Complete), and both of these weights are negative, meaning that an increase in these features means it is more likely that the school is not currently operating. Governance (CONTROL) is a categorical feature, meaning that an "increase" in governance is a change in category from public to private nonprofit to private for-profit school. With a negative weight for this feature, it is slightly more likely that private for-profit schools will be not currently operating than public or private nonprofit schools. Given the fact that a majority of the schools in the database are private for-profit schools, it makes sense that a greater percentage of the closed schools are also private for-profit schools, so having this governance structure leads to a greater prediction that the schools will be closed.
 
@@ -170,27 +175,30 @@ The Council of Christian Colleges and Universities (CCCU) provides data, support
 
 \item Look at the schools in the test set that were "false negative" results - the ones that the model predicted to be closed, but are actually currently operating. Are there any uniting characteristics, or any special circumstances or institutional changes not accounted for in the model to explain why the schools are still operating, or why the model made the wrong prediction?
 
-For example, the final model based on the 2013 test set predicted that 2 private nonprofit bachelor's institutions would be closed. An internet search for those schools showed that they are currently operating in 2020. It would be interesting to learn more about the individual schools, and see if they were close to closure at any point in the last 7 years, and what changes, if any, they have made recently that would influence their institutional organization or financial situation.
-
-%For example, the model based on the 2013 test set predicted that 7 private nonprofit bachelor's institutions would be closed. An internet search for those schools showed that they are all currently operating in 2020. It would be interesting to learn more about the individual schools, and see if they were close to closure at any point in the last 7 years, and what changes, if any, they have made recently that would influence their institutional organization or financial situation.
+For example, the final model based on the 2013 test set predicted that 3 private nonprofit bachelor's institutions would be closed. An internet search for those schools showed that 2 of them are still operating in 2020, and one closed in 2016. It would be interesting to do more research about the closed school, to see if and how its impending closure were represented in the data, particularly if there were financial factors that were not included in the model. It would also be interesting to learn more about the operating schools, and see if they were close to closure at any point in the last 7 years, and what changes, if any, they have made recently that would influence their institutional organization or financial situation.
 
 \item Run each of the member schools through the model and examine the predictions. If the model predicts that the school is closed, it could be a warning to school administrators that they need to examine their current operational practices, and make strategic changes.
 
-For example, because I know of several CCCU member institutions with the name 'Bethel', I ran all 15 of the schools whose name starts with 'bethel' through the model. While all of them were correctly predicted, for both currently operating and not currently operating schools, it is likely that some of the 180+ currently operating CCCU member institutions would be predicted to be closed.
+For example, because I know of several CCCU member institutions with the name 'Bethel', I ran all of the schools whose name starts with 'bethel' through the model. While all eleven of them were correctly predicted, for both currently operating and not currently operating schools, it is likely that some of the 180+ currently operating CCCU member institutions would be predicted to be closed.
 
-\item In addition to predicting a boolean value for the schools operating status, the model generates the probability that each school is open (or closed). The current model used a threshold of 50\% for assigning a school as operating or not. Adjusting this threshold would change the predictions for various schools, especially those close to the threshold boundary. Even without adjusting the threshold used by the model, the probabilities assigned by the model could be useful. A school with a 51\% probability of being open could be in more danger of closing than one with a 99\% probability of being open. Examining the probability of individual client schools could provide useful information to the school's administrators.
+\item In addition to predicting a boolean value for the schools operating status, the model generates the probability that each school is open (or closed). The final AdaBoost model used a threshold of 50\% for assigning a school as operating or not. Adjusting this threshold would change the predictions for various schools, especially those close to the threshold boundary. 
 
+Even without adjusting the threshold used by the model, the probabilities assigned by the model could be useful. A school with a 51\% probability of being open could be in more danger of closing than one with a 99\% probability of being open. Examining the probability of individual client schools could provide useful information to the school's administrators.
+
+For example, for the eleven 'Bethel' schools referenced above, all the correctly predicted, currently operating schools had over a 99\% predicted probability of being open, while the correctly predicted, closed schools had a predicted probability of less than 3\% of being open.
+
+There were eleven private nonprofit schools with a predicted probability between 50-60\%. Of these schools, four were predicted to be open, but were actually closed (false positive responses). Of the schools that were currently operating in 2013, five appear to be still operating in 2020, and two appear to have either been renamed or merged with other schools, and are thus not currently operating under the same name.
 \end{enumerate}
 
 \section{Future Research}
 
 The most recent data available is from 2013, so there should be five or six years worth of more current data somewhere. It would be interesting to compare the predictions made by the 2013 model to the actual current data, and see how the model and predictions would change if retrained on the more current data. If the goal is of using the model is to help schools weather the financial and economic uncertainty surrounding the coronavirus pandemic, having accurate \textit{current} information about the schools and their financial status would be important.
 
-While the current scorecard data reports on several institutional financial metrics, like tuition revenue, instructional expenditure, and average faculty salary, other financial metrics may provide useful information about the financial status of the institution, that would help make more accurate predictions. Suggested additional data include:
+While the current scorecard data reports on several institutional financial metrics, like tuition revenue and instructional expenditure, other financial metrics may provide useful information about the financial status of the institution, that would help make more accurate predictions. Suggested additional data include:
 \begin{itemize}
 \item the size of the institutional endowment (if any),
 \item the amount of institutional debt, or the proportion of institutional debt to the operating budget,
-\item the unfunded discount rate - how much financial aid the school provides students apart from federally funded aid
+\item the unfunded discount rate - how much financial aid the school provides students apart from federally funded aid.
 \end{itemize}
 
 Another popular resource for evaluating colleges and universities is the annual US News and World Report rankings. Including information from these rankings, or accessing the data on which the rankings are based, could provide additional metrics and useful features for predicting the closure of institutions.
